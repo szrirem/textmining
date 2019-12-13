@@ -138,4 +138,7 @@ def new_comment(text):
 #<---KONSOLDA DENEME İÇİN ---> new_comment('DENEME CÜMLESİ')
 
 
+# !!!!!! İREME NOT: GİT'İ ARTIK KULLANABİLİRİZ !!!!
+
+
 

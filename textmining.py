@@ -73,16 +73,6 @@ dfObj['text'] = dfObj['text'].str.replace('\d+', '')
 sns.countplot(x='sentiment', data=dfObj)
 plt.show()
 
-# X = []
-# X = list(dfObj['text'])
-#
-#
-# y = dfObj['sentiment']
-# y = np.array(list(map(lambda x: 1 if x=="positive" else 0, y)))
-#
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
-
-
 # The maximum number of words to be used. (most frequent)
 MAX_NB_WORDS = 50000
 # Max number of words in each complaint.

@@ -1,4 +1,3 @@
-import psycopg2
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -6,69 +5,41 @@ import matplotlib.pyplot as plt
 from keras.callbacks import EarlyStopping
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
-from keras.layers.core import Activation, Dropout, Dense, SpatialDropout1D
-from keras.layers import Flatten, Conv1D, LSTM
+from keras.layers.core import Dense, SpatialDropout1D
+from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from sklearn.model_selection import train_test_split
 from keras.preprocessing.text import Tokenizer
 from nltk.corpus import stopwords
-import re
-
-try:
-    connection = psycopg2.connect(user="admin",
-                                  password="FosterInsight.2020",
-                                  host="127.0.0.1",
-                                  port="3308",
-                                  database="dbappalign")
-    cursor = connection.cursor()
-    postgreSQL_select_Query = "select * from data_source_comment ORDER BY id"
-    cursor.execute(postgreSQL_select_Query)
-    print("Selecting rows from mobile table using cursor.fetchall")
-    mobile_records = cursor.fetchall()
-    dfObj = pd.DataFrame(data=mobile_records,
-                         columns=['id', 'writenby', 'date', 'rate', 'city', 'text', 'bank_id']).sort_values(by='id')
-
-    dfObj.to_csv(r'C:\Users\Samsung\Desktop\comments.csv')
 
 
-except (Exception, psycopg2.Error) as error:
-    print("Error while fetching data from PostgreSQL", error)
-
-pd.set_option('display.max_columns', 500)
-
-#df = dfObj[['text','sentiment']]
-#df_new = pd.DataFrame(df)
-#print(df[0])
-# dfObj.insert(7, "sentiment", "null")
-
+dfObj = pd.read_csv('./trbanka.csv', encoding='utf-16', )
 rate = dfObj['rate']
 sentiment = []
+
 for i in range(1229):
-    if rate[i] == 1 or rate[i]== 2 or rate[i]==3:
+    if rate[i] == 1 or rate[i] == 2 or rate[i] == 3:
         sentiment.append("negative")
     else:
         sentiment.append("positive")
 
 dfObj.insert(7, "sentiment", sentiment)
-dfObj=dfObj.drop(["id","writenby","date","rate","city","bank_id"],axis=1)
-df2=pd.read_csv('./pozitif yorum.csv', encoding='ISO-8859-9')
-dfObj=pd.concat([dfObj,df2],ignore_index=True)
-
-#!!!!!!!!!!!!!! STOPWORDS !!!!!!!!!!!!!!
-
-dfObj = dfObj.reset_index(drop=True)
-STOPWORDS = set(stopwords.words('turkish'))
+dfObj = dfObj.drop(["id", "writenby", "date", "rate", "city", "bank_id"], axis=1)
+df2 = pd.read_csv('./pozitif yorum.csv', encoding='ISO-8859-9')
+dfObj = pd.concat([dfObj, df2], ignore_index=True)
 
 
+# !!!!!!!!!!!!!! STOPWORDS !!!!!!!!!!!!!!
 def clean_text(text):
-
     text = ' '.join(word for word in text.split() if word not in STOPWORDS)  # remove stopwors from text
     return text
 
 
+dfObj = dfObj.reset_index(drop=True)
+STOPWORDS = set(stopwords.words('turkish'))
 dfObj['text'] = dfObj['text'].apply(clean_text)
 dfObj['text'] = dfObj['text'].str.replace('\d+', '')
-#!!!!!!!!!!!!!! STOPWORDS END !!!!!!!!!!!!!!1
+# !!!!!!!!!!!!!! STOPWORDS END !!!!!!!!!!!!!!1
 
 sns.countplot(x='sentiment', data=dfObj)
 plt.show()
@@ -112,13 +83,11 @@ history = model.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size, vali
 accr = model.evaluate(X_test, Y_test)
 print('Test set\n  Loss: {:0.3f}\n  Accuracy: {:0.3f}'.format(accr[0], accr[1]))
 
-
-
 plt.title('Loss')
 plt.plot(history.history['loss'], label='train')
 plt.plot(history.history['val_loss'], label='test')
 plt.legend()
-plt.show();
+plt.show()
 
 plt.title('Accuracy')
 plt.plot(history.history['accuracy'], label='train')
@@ -135,10 +104,4 @@ def new_comment(text):
     labels = ['negative', 'positive']
     return print(pred, labels[np.argmax(pred)])
 
-#<---KONSOLDA DENEME İÇİN ---> new_comment('DENEME CÜMLESİ')
-
-
-# !!!!!! İREME NOT: GİT'İ ARTIK KULLANABİLİRİZ !!!!
-
-
-
+# <---KONSOLDA DENEME İÇİN ---> new_comment('DENEME CÜMLESİ')
